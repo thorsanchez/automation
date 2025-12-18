@@ -1,6 +1,6 @@
 import os
 import json
-from google import genai # Ath: breytt úr google.generativeai
+from google import genai
 from dotenv import load_dotenv
 
 load_dotenv()
