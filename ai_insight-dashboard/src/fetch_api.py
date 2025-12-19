@@ -14,4 +14,4 @@ def fetch_comments(limit: int =20) -> pd.DataFrame:
     df = df.head(limit)
 
     return df[['body']]
-print(fetch_comments(4))
+#print(fetch_comments(4))
