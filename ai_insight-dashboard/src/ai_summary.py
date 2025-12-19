@@ -39,14 +39,12 @@ def summarize_feedback(cleaned_texts: list) -> str:
 
     Keep the tone professional and business-focused.
     """
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.2,
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt,
+        config={
+            "temperature": 0.2,
+        }
     )
 
-    content = response.choices[0].message.content
-
-    return str(content)
+    return str(response.text)
