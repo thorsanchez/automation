@@ -12,9 +12,13 @@ from workdata.clean_text import clean_text
 from workdata.validate_data import validate_incident_data
 from llm.ai_decision import batch_analyze_incidents
 from llm.ai_summary import summarize_feedback
+from actions.alert_service import AlertService
 
 
 def run_pipeline():
+    # Initialize alertservice (high/critical)
+    alert_service = AlertService(alert_threshold="high")
+
     # Sækja gögn
     api_df = fetch_github_issues(limit=5)
     api_df["source"] = "api"
@@ -42,6 +46,16 @@ def run_pipeline():
     valid_df["severity"] = [d["severity"] for d in decisions]
     valid_df["category"] = [d["category"] for d in decisions]
 
+    # Send alerts for critical/high severity incidents
+    print("\n🔔 Processing alerts...")
+    for idx, (_, row) in enumerate(valid_df.iterrows()):
+        incident_id = f"INC-{idx+1:03d}"
+        alert_service.send_alert(
+            incident_id=incident_id,
+            decision=decisions[idx],
+            title=row["text"][:100]
+        )
+
     # Sýna niðurstöður
     print("\nNiðurstöður:")
     for severity, count in valid_df["severity"].value_counts().items():
@@ -61,6 +75,10 @@ def run_pipeline():
         f.write(f"# Atvikagreiningarskýrsla\n\n")
         f.write(f"**Búið til:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
         f.write(summary_report)
+
+    # Batch sum
+    alert_service.send_batch_summary(len(valid_df), decisions)
+
 
 
 if __name__ == "__main__":
