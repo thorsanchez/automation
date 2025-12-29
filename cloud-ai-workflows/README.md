@@ -17,7 +17,7 @@ Fyrirtæki fá þúsundir tickets, villa og endurgjafir á hverjum degi. Þetta 
 - gefur skipulagðar ákvarðanir (alvarleiki, flokkur, ráðlögð aðgerð)
 
 ## Project Structure
-![projectstructure](image.png)
+![projectstructure](projectstructure.png)
 
 ## Uppbygging
 
