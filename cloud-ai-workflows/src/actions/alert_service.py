@@ -23,6 +23,7 @@ class AlertService:
             "low": 1
         }
         self.alerts_sent = []
+        self.manual_review_flagged = []  # Track incidents sem þarfnast manual review
     
     def should_alert(self, severity: str) -> bool:
         """
@@ -35,12 +36,27 @@ class AlertService:
     def send_alert(self, incident_id: str, decision: Dict[str, Any], title: str = "") -> bool:
         """
         Send alert ef severity er nógu high
-        
+
         Returns True ef alert var sent
         """
+        # Athuga fyrst hvort þetta þarfnast manual review
+        if decision.get("needs_manual_review", False):
+            review_item = {
+                "timestamp": datetime.now().isoformat(),
+                "incident_id": incident_id,
+                "severity": decision["severity"],
+                "category": decision["category"],
+                "title": title,
+                "action": decision["recommended_action"],
+                "confidence": decision["confidence"],
+                "reasoning": decision.get("reasoning", "")
+            }
+            self.manual_review_flagged.append(review_item)
+            self._print_manual_review_flag(review_item)
+
         if not self.should_alert(decision.get("severity", "low")):
             return False
-        
+
         alert = {
             "timestamp": datetime.now().isoformat(),
             "incident_id": incident_id,
@@ -50,7 +66,7 @@ class AlertService:
             "action": decision["recommended_action"],
             "confidence": decision["confidence"]
         }
-        
+
         self.alerts_sent.append(alert)
         self._print_alert(alert)
         return True
@@ -70,6 +86,10 @@ class AlertService:
         print(f"Action:   {alert['action']}")
         print(f"Confidence: {alert['confidence']:.2f}")
         print("="*60 + "\n")
+
+    def _print_manual_review_flag(self, review_item: Dict[str, Any]):
+        """Flag fyrir manual review"""
+        print(f"[MANUAL REVIEW] {review_item['incident_id']} - confidence: {review_item['confidence']:.2f} < {CONFIDENCE_THRESHOLD}")
     
     def send_batch_summary(self, total_processed: int, decisions: List[Dict[str, Any]]):
         """
@@ -90,6 +110,7 @@ class AlertService:
         print("="*60)
         print(f"Total Incidents Processed: {total_processed}")
         print(f"Alerts Sent: {len(self.alerts_sent)}")
+        print(f"Manual Review Flagged: {len(self.manual_review_flagged)}")
         print("\nSeverity Breakdown:")
         print(f"  Critical: {severity_counts['critical']}")
         print(f"  High:     {severity_counts['high']}")
@@ -102,6 +123,12 @@ class AlertService:
         Skilar allar sendar alerts
         """
         return self.alerts_sent
+
+    def get_manual_review_items(self) -> List[Dict[str, Any]]:
+        """
+        Skilar öllum incidents sem þarfnast manual review
+        """
+        return self.manual_review_flagged
 
 
 # Test frá claude

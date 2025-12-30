@@ -8,6 +8,9 @@ load_dotenv()
 
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
+# Confidence threshold fyrir manual review
+CONFIDENCE_THRESHOLD = 0.7
+
 def analyze_incident(incident_text: str, source: str = "unknown") -> Dict[str, Any]:
     """
     Greinir incident/feedback og skilar skipulögðum ákvörðunargögnum
@@ -32,7 +35,8 @@ def analyze_incident(incident_text: str, source: str = "unknown") -> Dict[str, A
             "recommended_action": "dismiss",
             "confidence": 0.0,
             "reasoning": "Empty or invalid input",
-            "source": source
+            "source": source,
+            "needs_manual_review": False
         }
     
     prompt = f"""You are an AI system that analyzes customer incidents and operational issues.
@@ -96,7 +100,16 @@ Return ONLY the JSON, nothing else."""
         # Validate confidence
         if not isinstance(decision["confidence"], (int, float)) or not (0 <= decision["confidence"] <= 1):
             decision["confidence"] = 0.5
-        
+
+        # Bæta við needs_manual_review ef confidence < threshold
+        # Ef confidence er lág, downgrade til medium og flag fyrir manual review
+        if decision["confidence"] < CONFIDENCE_THRESHOLD:
+            decision["needs_manual_review"] = True
+            if decision["severity"] in ["critical", "high"]:
+                decision["severity"] = "medium"
+        else:
+            decision["needs_manual_review"] = False
+
         return decision
         
     except json.JSONDecodeError as e:
@@ -111,7 +124,8 @@ Return ONLY the JSON, nothing else."""
             "confidence": 0.3,
             "reasoning": "Failed to parse AI response, defaulting to safe values",
             "source": source,
-            "error": str(e)
+            "error": str(e),
+            "needs_manual_review": True  # Alltaf flagga fyrir review ef parsing error
         }
     
     except Exception as e:
@@ -125,7 +139,8 @@ Return ONLY the JSON, nothing else."""
             "confidence": 0.0,
             "reasoning": f"Error during analysis: {str(e)}",
             "source": source,
-            "error": str(e)
+            "error": str(e),
+            "needs_manual_review": True  # Alltaf flagga fyrir review ef error
         }
 
 
