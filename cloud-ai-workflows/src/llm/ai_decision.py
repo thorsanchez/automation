@@ -156,20 +156,30 @@ def batch_analyze_incidents(incidents: list) -> list:
 def get_critical_incidents(decisions: list) -> list:
     """
     Sía atvik með alvarleika
-    
+
     Parameters: decisions: List of decision dictionaries
-    
+
     Skilar:Lista sem innihalda aðeins atvik með alvarleika critical og high
     """
+    SEVERITY_PRIORITY = {
+        "critical": 0,
+        "high": 1,
+        "medium": 2,
+        "low": 3
+    }
+
     critical = [
-        d for d in decisions 
+        d for d in decisions
         if d.get("severity") in ["critical", "high"]
     ]
-    
-    return sorted(critical, key=lambda x: (
-        0 if x["severity"] == "critical" else 1,
-        -x.get("confidence", 0)
-    ))
+
+    return sorted(
+        critical,
+        key=lambda x: (
+            SEVERITY_PRIORITY.get(x.get("severity", "low"), 3),
+            -x.get("confidence", 0)
+        )
+    )
 
 
 if __name__ == "__main__":
