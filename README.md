@@ -1,4 +1,4 @@
-# AI Verkefnasafn
+# Automation Verkefnasafn
 
 Þetta repo inniheldur ýmis AI og data analysis automation verkefni sem sýna færni í Python, AI integration, cloud deployment og gagnagreiningu.
 
