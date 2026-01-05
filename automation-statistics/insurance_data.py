@@ -3,7 +3,7 @@ import seaborn as sns, matplotlib.pyplot as plt
 
 insurance_csv = "insurance.csv"
 nba_salary = "nba_2022-23_all_stats_with_salary.csv"
-df = pd.read_csv(nba_salary)
+df = pd.read_csv(insurance_csv)
 
 #print(df.head())
 #print(df.describe())
@@ -34,6 +34,6 @@ def univariate(df):
         else:
             output_df.loc[col] = [dtype, count, missing, unique, mode, '-', '-', '-', '-', '-', '-', '-', '-', '-']
             sns.countplot(data=df, x=col)
-        plt.show()
+        #plt.show()
     return output_df
 print(univariate(df))
