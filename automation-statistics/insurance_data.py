@@ -14,5 +14,6 @@ def univariate(df):
         count = df[col].count()
         missing = df[col].isna().sum()
         unique = df[col].nunique()
-        print(dtype, count, missing, unique)
+        output_df.loc[col] = [dtype, count, missing, unique]
+    return output_df
 print(univariate(df))
