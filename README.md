@@ -22,7 +22,10 @@ Streamlit dashboard sem safnar saman feedback frá mörgum stöðum og notar Goo
 ### `automation-statistics/`
 
 Dynamic univariate analysis sem er automated og virkar fyrir hvaða pandas DataFrame sem er
+![output](./automation-statistics/Screenshot5.1.png)
+![output](./automation-statistics/Screenshot5.2-2.png)
 
 ### `cloud-ai-workflows/`
 
 Sjálfvirkt incident management kerfi sem sækir tickets úr mörgum áttum, notar AI til að flokka alvarleika atvika og sendir viðvaranir fyrir mikilvæg mál (deployed á AWS með Docker og Terraform).
+![output](./cloud-ai-workflows/public/output.png)
